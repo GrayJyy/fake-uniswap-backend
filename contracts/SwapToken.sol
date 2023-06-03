@@ -42,4 +42,37 @@ contract SwapToken {
             });
         amountOut = swapRouter.exactInputSingle(params);
     }
+
+    function swapExactOutputSingle(
+        uint256 amountOut,
+        uint256 amountInMaximum
+    ) external returns (uint256 amountIn) {
+        TransferHelper.safeTransferFrom(
+            WETH9,
+            msg.sender,
+            address(this),
+            amountInMaximum
+        );
+        TransferHelper.safeApprove(WETH9, address(swapRouter), amountInMaximum);
+        ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
+            .ExactOutputSingleParams({
+                tokenIn: WETH9,
+                tokenOut: DAI,
+                fee: 3000,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountOut: amountOut,
+                amountInMaximum: amountInMaximum,
+                sqrtPriceLimitX96: 0
+            });
+        amountIn = swapRouter.exactOutputSingle(params);
+        if (amountIn < amountInMaximum) {
+            TransferHelper.safeApprove(DAI, address(swapRouter), 0);
+            TransferHelper.safeTransfer(
+                DAI,
+                msg.sender,
+                amountInMaximum - amountIn
+            );
+        }
+    }
 }

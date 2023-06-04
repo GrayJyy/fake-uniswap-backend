@@ -4,7 +4,6 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { IWeth, SwapToken } from '../../typechain-types'
 import { developChain } from '../../helperHardhatConfig'
 import { assert, expect } from 'chai'
-import { equal } from 'assert'
 
 !developChain.includes(network.name)
   ? describe.skip
@@ -41,6 +40,22 @@ import { equal } from 'assert'
           const wethBalanceAfter = (await weth.balanceOf(signer.address)).toString()
           assert.equal(wethBalanceAfter, '0')
           expect((await dai.balanceOf(signer.address)).gt(ethers.utils.parseEther('0')))
+        })
+      })
+      describe('swapExactOutputSingle', () => {
+        it.only('Should output the certain dai amount and refund the remain weth', async () => {
+          const daiBalanceBefore = await dai.balanceOf(signer.address)
+          const amountInMaximum = ethers.utils.parseEther('0.1')
+          await weth.deposit({ value: amountInMaximum })
+          const wethBalanceBefore = (await weth.balanceOf(signer.address)).toString()
+          assert.equal(wethBalanceBefore, amountInMaximum.toString())
+          await weth.approve(swapToken.address, amountInMaximum)
+          const amountOut = ethers.utils.parseEther('1')
+          await swapToken.swapExactOutputSingle(amountOut, amountInMaximum)
+          const wethBalanceAfter = await weth.balanceOf(signer.address)
+          const daiBalanceAfter = await dai.balanceOf(signer.address)
+          expect(wethBalanceAfter.gt(ethers.utils.parseEther('0')))
+          expect(daiBalanceAfter.lt(daiBalanceBefore.add(amountOut)))
         })
       })
     })

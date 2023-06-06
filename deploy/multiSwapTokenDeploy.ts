@@ -14,7 +14,9 @@ const multiSwapTokenDeploy: DeployFunction = async ({ deployments, getNamedAccou
     log: true,
     waitConfirmations,
   })
-  log(`Deployed multiSwapToken contract at address: ${multiSwapToken.address} ,the network is ${network.name}`)
+  log(
+    `Deployed multiSwapToken contract at address: ${multiSwapToken.address} ,the network is ${network.name},the deployer is ${deployer}`
+  )
   log('---------------------------------------------------------------------------------------------')
   if (!developChain.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
     verify(multiSwapToken.address, args)

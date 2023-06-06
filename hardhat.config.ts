@@ -4,6 +4,7 @@ import 'dotenv/config'
 import 'hardhat-deploy'
 import useProxyAgent from './utils/useProxyAgent'
 import { GAS, GAS_PRICE } from './constants/constant'
+import { ethers } from 'hardhat'
 
 const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
 const PRIVATE_KEY = process.env.PRIVATE_KEY!
@@ -24,7 +25,11 @@ const config: HardhatUserConfig = {
   },
   defaultNetwork: 'hardhat',
   networks: {
-    hardhat: { chainId: 31337, forking: { url: MAINNET_RPC_URL } },
+    hardhat: {
+      chainId: 31337,
+      forking: { url: MAINNET_RPC_URL },
+      accounts: [{ privateKey: PRIVATE_KEY, balance: '100000000000000000000000' }],
+    },
     sepolia: { chainId: 11155111, url: SEPOLIA_RPC_URL, accounts: [PRIVATE_KEY], gasPrice: GAS_PRICE, gas: GAS },
     mainnet: { chainId: 1, url: MAINNET_RPC_URL, accounts: [PRIVATE_KEY], gasPrice: GAS_PRICE, gas: GAS },
   },
